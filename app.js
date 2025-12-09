@@ -20,8 +20,12 @@ function ordenarPorDistancia(latUser, lonUser) {
     .sort((a, b) => a.distancia - b.distancia);
 }
 
-function gerarLinkRota(latOrigem, lonOrigem, latDest, lonDest) {
-  return `https://www.google.com/maps/dir/?api=1&origin=${latOrigem},${lonOrigem}&destination=${latDest},${lonDest}&travelmode=driving`;
+function gerarLinksRota(latOrigem, lonOrigem, latDest, lonDest, label) {
+  const nome = encodeURIComponent(label || "Destino");
+  const geo = `geo:${latDest},${lonDest}?q=${latDest},${lonDest}(${nome})`;
+  const gmaps = `https://www.google.com/maps/dir/?api=1&origin=${latOrigem},${lonOrigem}&destination=${latDest},${lonDest}&travelmode=driving`;
+  const waze = `https://waze.com/ul?ll=${latDest},${lonDest}&navigate=yes`;
+  return { geo, gmaps, waze };
 }
 
 function mostrarResultado(lat, lon, origemTexto) {
@@ -39,7 +43,7 @@ function mostrarResultado(lat, lon, origemTexto) {
   html += `<ul class="lista-pontos">`;
 
   ordenados.forEach((p, idx) => {
-    const link = gerarLinkRota(lat, lon, p.lat, p.lon);
+    const links = gerarLinksRota(lat, lon, p.lat, p.lon, p.nome);
     html += `
       <li>
         <div class="linha">
@@ -47,9 +51,11 @@ function mostrarResultado(lat, lon, origemTexto) {
             <div class="nome">${idx + 1}. ${p.nome}</div>
             <div class="dist">Distância aproximada: ${p.distancia.toFixed(2)} km</div>
           </div>
-          <div>
-            <a class="btn-mini" href="${link}" target="_blank" rel="noopener noreferrer">Traçar rota</a>
-          </div>
+        </div>
+        <div class="btns-rotas">
+          <a class="btn-mini" href="${links.geo}">App de mapas (padrão)</a>
+          <a class="btn-mini secondary-mini" href="${links.gmaps}" target="_blank" rel="noopener noreferrer">Google Maps</a>
+          <a class="btn-mini secondary-mini" href="${links.waze}" target="_blank" rel="noopener noreferrer">Waze</a>
         </div>
       </li>
     `;

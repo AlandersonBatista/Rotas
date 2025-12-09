@@ -105,7 +105,7 @@
       margin-bottom: 6px;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 6px;
     }
     .lista-pontos .linha {
       display: flex;
@@ -121,12 +121,24 @@
       font-size: 0.8rem;
       color: #b0b0b0;
     }
+    .btns-rotas {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
     .btn-mini {
       padding: 6px 10px;
       font-size: 0.8rem;
       flex: 0 0 auto;
       background: #2979ff;
       border-radius: 4px;
+      text-decoration: none;
+      color: #fff;
+      font-weight: 500;
+    }
+    .btn-mini.secondary-mini {
+      background: #424242;
     }
   </style>
 </head>
@@ -134,7 +146,7 @@
   <div class="card">
     <span class="tag">Beta</span>
     <h1>Encontrar ponto mais próximo</h1>
-    <p>Digite seu endereço ou use sua localização. O app lista os pontos em ordem de distância e você escolhe qual rota abrir no Google Maps.</p>
+    <p>Digite seu endereço ou use sua localização. O app lista os pontos em ordem de distância e você escolhe em qual app de mapas abrir a rota (app padrão, Google Maps, Waze).</p>
 
     <label for="endereco">Endereço</label>
     <input id="endereco" placeholder="Ex.: Rua X, nº Y, Bairro, Cidade - UF">
