@@ -1,38 +1,153 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PWA Rota</title>
-<link rel="manifest" href="manifest.webmanifest">
-<style>
-body {
-  margin:0; padding:20px;
-  background:#121212; color:#e0e0e0;
-  font-family:Arial, sans-serif;
-}
-input {
-  width:100%; padding:12px;
-  background:#1e1e1e; border:1px solid #444; color:#fff;
-  border-radius:6px; margin-bottom:10px;
-}
-button {
-  width:100%; padding:12px; background:#2979ff;
-  border:none; border-radius:6px; color:white;
-  font-weight:bold; cursor:pointer;
-}
-#resultado { margin-top:20px; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PWA Rota</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #121212;
+      color: #e0e0e0;
+      font-family: Arial, sans-serif;
+    }
+    h1 {
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+    }
+    p {
+      font-size: 0.9rem;
+      color: #b0b0b0;
+    }
+    .card {
+      background: #1e1e1e;
+      border-radius: 10px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    label {
+      display: block;
+      font-size: 0.85rem;
+      margin-bottom: 4px;
+      color: #bbbbbb;
+    }
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      background: #181818;
+      border: 1px solid #444;
+      color: #ffffff;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      font-size: 0.9rem;
+    }
+    input::placeholder {
+      color: #666;
+    }
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 4px;
+      margin-bottom: 8px;
+    }
+    button {
+      flex: 1;
+      padding: 10px 12px;
+      background: #2979ff;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-weight: bold;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: opacity 0.15s ease;
+    }
+    button.secondary {
+      background: #424242;
+    }
+    button:active {
+      opacity: 0.7;
+    }
+    #resultado {
+      margin-top: 14px;
+      font-size: 0.9rem;
+    }
+    a {
+      color: #81cfff;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    .tag {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      background: #263238;
+      color: #81d4fa;
+      margin-bottom: 6px;
+    }
+    .lista-pontos {
+      margin-top: 10px;
+      padding-left: 0;
+      list-style: none;
+    }
+    .lista-pontos li {
+      background: #181818;
+      border-radius: 6px;
+      padding: 8px 10px;
+      margin-bottom: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .lista-pontos .linha {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .lista-pontos .nome {
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+    .lista-pontos .dist {
+      font-size: 0.8rem;
+      color: #b0b0b0;
+    }
+    .btn-mini {
+      padding: 6px 10px;
+      font-size: 0.8rem;
+      flex: 0 0 auto;
+      background: #2979ff;
+      border-radius: 4px;
+    }
+  </style>
 </head>
 <body>
-<h2>Encontrar ponto mais próximo</h2>
+  <div class="card">
+    <span class="tag">Beta</span>
+    <h1>Encontrar ponto mais próximo</h1>
+    <p>Digite seu endereço ou use sua localização. O app lista os pontos em ordem de distância e você escolhe qual rota abrir no Google Maps.</p>
 
-<input id="endereco" placeholder="Digite seu endereço">
-<button onclick="processar()">Buscar ponto mais próximo</button>
+    <label for="endereco">Endereço</label>
+    <input id="endereco" placeholder="Ex.: Rua X, nº Y, Bairro, Cidade - UF">
 
-<div id="resultado"></div>
+    <div class="btn-row">
+      <button onclick="processarEndereco()">Usar endereço</button>
+      <button class="secondary" onclick="processarGPS()">Usar meu GPS</button>
+    </div>
 
-<script src="pontos.js"></script>
-<script src="app.js"></script>
+    <div id="resultado"></div>
+  </div>
+
+  <script src="pontos.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>

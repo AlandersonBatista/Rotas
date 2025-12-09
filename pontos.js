@@ -1,5 +1,5 @@
+// Pontos fixos cadastrados
 const pontos = [
-  { nome: "Ponto A", lat: -22.9000, lon: -43.2000 },
-  { nome: "Ponto B", lat: -22.9500, lon: -43.3000 },
-  { nome: "Ponto C", lat: -22.8700, lon: -43.2500 }
+  { nome: "Endereço 1", lat: -22.9018423077261, lon: -43.718571505227146 },
+  { nome: "Endereço 2", lat: -22.91204143160093, lon: -43.687803629307105 }
 ];
