@@ -1,130 +1,44 @@
-function distanciaKm(lat1, lon1, lat2, lon2) {
-  const R = 6371; // km
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(lat1 * Math.PI / 180) *
-      Math.cos(lat2 * Math.PI / 180) *
-      Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
+function distanciaKm(a,b,c,d){
+ const R=6371, dLat=(c-a)*Math.PI/180, dLon=(d-b)*Math.PI/180;
+ const h=Math.sin(dLat/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dLon/2)**2;
+ return 2*R*Math.atan2(Math.sqrt(h),Math.sqrt(1-h));
 }
-
-function ordenarPorDistancia(latUser, lonUser) {
-  return pontos
-    .map(p => ({
-      ...p,
-      distancia: distanciaKm(latUser, lonUser, p.lat, p.lon)
-    }))
-    .sort((a, b) => a.distancia - b.distancia);
+function ordenar(lat,lon){
+ return pontos.map(p=>({...p,dist:distanciaKm(lat,lon,p.lat,p.lon)})).sort((x,y)=>x.dist-y.dist);
 }
-
-function gerarLinksRota(latOrigem, lonOrigem, latDest, lonDest, label) {
-  const nome = encodeURIComponent(label || "Destino");
-  const geo = `geo:${latDest},${lonDest}?q=${latDest},${lonDest}(${nome})`;
-  const gmaps = `https://www.google.com/maps/dir/?api=1&origin=${latOrigem},${lonOrigem}&destination=${latDest},${lonDest}&travelmode=driving`;
-  const waze = `https://waze.com/ul?ll=${latDest},${lonDest}&navigate=yes`;
-  return { geo, gmaps, waze };
+function rotaGeo(latDest,lonDest,label){
+ return `geo:${latDest},${lonDest}?q=${latDest},${lonDest}(${encodeURIComponent(label)})`;
 }
-
-function mostrarResultado(lat, lon, origemTexto) {
-  const r = document.getElementById("resultado");
-  if (!pontos || !pontos.length) {
-    r.innerHTML = "Nenhum ponto cadastrado.";
-    return;
-  }
-
-  const ordenados = ordenarPorDistancia(lat, lon);
-
-  let html = "";
-  html += `<p><b>Origem:</b> ${origemTexto}</p>`;
-  html += `<p>Foram encontrados ${ordenados.length} pontos. O primeiro é o mais próximo.</p>`;
-  html += `<ul class="lista-pontos">`;
-
-  ordenados.forEach((p, idx) => {
-    const links = gerarLinksRota(lat, lon, p.lat, p.lon, p.nome);
-    html += `
-      <li>
-        <div class="linha">
-          <div>
-            <div class="nome">${idx + 1}. ${p.nome}</div>
-            <div class="dist">Distância aproximada: ${p.distancia.toFixed(2)} km</div>
-          </div>
-        </div>
-        <div class="btns-rotas">
-          <a class="btn-mini" href="${links.geo}">App de mapas (padrão)</a>
-          <a class="btn-mini secondary-mini" href="${links.gmaps}" target="_blank" rel="noopener noreferrer">Google Maps</a>
-          <a class="btn-mini secondary-mini" href="${links.waze}" target="_blank" rel="noopener noreferrer">Waze</a>
-        </div>
-      </li>
-    `;
-  });
-
-  html += `</ul>`;
-  r.innerHTML = html;
+function mostrar(lat,lon,origem){
+ const r=document.getElementById("resultado");
+ const ord=ordenar(lat,lon);
+ let h=`<p><b>Origem:</b> ${origem}</p><ul class='lista-pontos'>`;
+ ord.forEach((p,i)=>{
+   const link=rotaGeo(p.lat,p.lon,p.nome);
+   h+=`<li><b>${i+1}. ${p.nome}</b><br>Distância: ${p.dist.toFixed(2)} km<br>
+        <a class='btn-mini' href='${link}'>Traçar rota</a></li>`;
+ });
+ r.innerHTML=h+"</ul>";
 }
-
-async function geocodificarEndereco(endereco) {
-  const url = "https://nominatim.openstreetmap.org/search?format=json&q=" + encodeURIComponent(endereco);
-  const resp = await fetch(url, {
-    headers: {
-      "Accept-Language": "pt-BR"
-    }
-  });
-  if (!resp.ok) {
-    throw new Error("Falha na geocodificação");
-  }
-  const dados = await resp.json();
-  if (!dados.length) {
-    throw new Error("Endereço não encontrado");
-  }
-  const lat = parseFloat(dados[0].lat);
-  const lon = parseFloat(dados[0].lon);
-  return { lat, lon };
+async function geocod(end){
+ const u="https://nominatim.openstreetmap.org/search?format=json&q="+encodeURIComponent(end);
+ const r=await fetch(u); const j=await r.json();
+ if(!j.length) throw("Endereço não encontrado");
+ return {lat:parseFloat(j[0].lat), lon:parseFloat(j[0].lon)};
 }
-
-async function processarEndereco() {
-  const end = document.getElementById("endereco").value.trim();
-  const r = document.getElementById("resultado");
-
-  if (!end) {
-    r.innerHTML = "Digite um endereço.";
-    return;
-  }
-
-  r.innerHTML = "Localizando endereço...";
-
-  try {
-    const { lat, lon } = await geocodificarEndereco(end);
-    mostrarResultado(lat, lon, "Endereço digitado");
-  } catch (e) {
-    r.innerHTML = "Erro: " + e.message;
-  }
+async function processarEndereco(){
+ const e=document.getElementById("endereco").value.trim();
+ const r=document.getElementById("resultado");
+ if(!e){ r.innerHTML="Digite um endereço."; return; }
+ r.innerHTML="Localizando...";
+ try{ const {lat,lon}=await geocod(e); mostrar(lat,lon,"Endereço digitado"); }
+ catch(err){ r.innerHTML="Erro: "+err; }
 }
-
-function processarGPS() {
-  const r = document.getElementById("resultado");
-  if (!navigator.geolocation) {
-    r.innerHTML = "Seu navegador não suporta geolocalização.";
-    return;
-  }
-
-  r.innerHTML = "Obtendo localização atual...";
-
-  navigator.geolocation.getCurrentPosition(
-    pos => {
-      const lat = pos.coords.latitude;
-      const lon = pos.coords.longitude;
-      mostrarResultado(lat, lon, "Minha localização (GPS)");
-    },
-    err => {
-      r.innerHTML = "Não foi possível obter sua localização (GPS bloqueado?).";
-    },
-    {
-      enableHighAccuracy: true,
-      timeout: 10000,
-      maximumAge: 0
-    }
-  );
+function processarGPS(){
+ const r=document.getElementById("resultado");
+ if(!navigator.geolocation){ r.innerHTML="GPS não suportado."; return; }
+ r.innerHTML="Obtendo localização...";
+ navigator.geolocation.getCurrentPosition(pos=>{
+   mostrar(pos.coords.latitude,pos.coords.longitude,"Minha localização (GPS)");
+ },()=>r.innerHTML="Não foi possível obter localização.");
 }
